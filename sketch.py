@@ -148,7 +148,7 @@ class Fisher_analysis(kspace_cartesian):
             - type = "KlUt" (kl_len, nfreq, ntel)
         """
         if self.svd_cut:
-            N_svd = self.beamtransfer.project_matrix_diagonal_telescope_to_svd(self, m, cv_noise)
+            N_svd = self.beamtransfer.project_matrix_diagonal_telescope_to_svd(m, cv_noise)
             N_kl  = self.kltrans.project_matrix_svd_to_kl(m, N_svd, threshold=None)
         else:
             trans_KU = self.getTransfer(m, type="KlUt")
