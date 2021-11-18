@@ -274,12 +274,13 @@ class Fisher_analysis(kspace_cartesian):
                 )
 
         if self.svd_cut:
+            Result = cv_fg
+        else:
             a, b, c, d, e = cv_fg.shape
             Result = N.zeros((a, b, c, c, d, e))
             for i in N.arange(c):
                 Result[:,:,i,i,:,:] = cv_fg[:,:,i,:,:]
-        else:
-            Result = cv_fg
+            
             
         self.cv_fg = Result
             
