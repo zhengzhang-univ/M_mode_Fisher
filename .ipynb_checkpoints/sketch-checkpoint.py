@@ -121,19 +121,14 @@ class Fisher_analysis(kspace_cartesian):
     def make_fisherM(self,a,b,m):
         cv_noise = self.make_noise_covariance(m)
         kl_covariance = self.project_covariance_tele_to_kl_m(m, cv_noise) + self.project_covariance_sky_to_kl_m(m, self.p_0 + self.cv_fg)
-        print(kl_covariance.shape)
-        nfreq = self.telescope.nfreq
-        kl_len = kl_covariance.shape[1]
-        shape = (nfreq*kl_len,nfreq*kl_len)
-        kl_covariance=kl_covariance.reshape(shape)
     
         c_plus_n_inverse = N.linalg.inv(kl_covariance) 
         
         lside = self.telescope.lmax+1
         npol = self.telescope.num_pol_sky
         
-        pa = self.project_covariance_sky_to_kl_m(m, self.p_alpha_list[a]).reshape(shape)
-        pb = self.project_covariance_sky_to_kl_m(m, self.p_alpha_list[b]).reshape(shape)
+        pa = self.project_covariance_sky_to_kl_m(m, self.p_alpha_list[a])
+        pb = self.project_covariance_sky_to_kl_m(m, self.p_alpha_list[b])
             
         result = N.trace( c_plus_n_inverse @ pa @ c_plus_n_inverse @ pb )
         return result
@@ -155,6 +150,7 @@ class Fisher_analysis(kspace_cartesian):
             for i in N.arange(nfreq):
                 for j in N.arange(nfreq):
                     N_kl[i, :, j, :] = trans_KU[:, i, :] @ cv_noise[i, :, j, :] @ trans_KU.T.conj()[:, j, :]
+            N_kl = N_kl.reshape(nfreq*N_kl,nfreq*N_kl)
         
         return N_kl
         
