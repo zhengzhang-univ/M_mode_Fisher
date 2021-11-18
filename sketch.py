@@ -136,7 +136,7 @@ class Fisher_analysis(kspace_cartesian):
             pb[0,0,i,i,:,:] = self.p_alpha_list[b][i,:,:]
         pb = self.project_covariance_sky_to_kl_m(m, pb).reshape(shape)
         result = N.trace( c_plus_n_inverse @ pa @ c_plus_n_inverse @ pb )
-        return(result)
+        return result
     
     def project_covariance_tele_to_kl_m(self, m, cv_noise):
         """
@@ -269,7 +269,9 @@ class Fisher_analysis(kspace_cartesian):
         else:
             Result = cv_fg
             
-        return(self.cv_fg = Result)
+        self.cv_fg = Result
+            
+        return
         
     
     
