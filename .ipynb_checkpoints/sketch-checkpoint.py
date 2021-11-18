@@ -99,17 +99,6 @@ class Fisher_analysis(kspace_cartesian):
                 self.p_alpha_list.append(p_alpha)
                 self.p_0 += self.alpha_vec[i] * p_alpha
     
-        """
-        if self.svd_cut:
-            self.p_0 = N.zeros((npol,npol,ldim,ldim,nfreq,nfreq))  # reference power spectrum
-            for i in range(self.alpha_dim): 
-                for j in range(ldim):
-                    self.p_0[0,0,j,j,:,:] += self.alpha_vec[i] * self.p_alpha_list[i][j,:,:]
-        else:
-            self.p_0 = N.zeros((npol,npol,ldim,nfreq,nfreq))  # reference power spectrum
-            for i in range(self.alpha_dim):
-                self.p_0[0,0,:,:,:] += self.alpha_vec[i] * self.p_alpha_list[i]
-        """    
         return
             
     def make_fisher(self, svd_cut="False"):
@@ -132,6 +121,7 @@ class Fisher_analysis(kspace_cartesian):
     def make_fisherM(self,a,b,m):
         cv_noise = self.make_noise_covariance(m)
         kl_covariance = self.project_covariance_tele_to_kl_m(m, cv_noise) + self.project_covariance_sky_to_kl_m(m, self.p_0 + self.cv_fg)
+        print(kl_covariance.shape)
         nfreq = self.telescope.nfreq
         kl_len = kl_covariance.shape[1]
         shape = (nfreq*kl_len,nfreq*kl_len)
