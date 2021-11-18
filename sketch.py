@@ -76,16 +76,30 @@ class kspace_cartesian():
 class Fisher_analysis(kspace_cartesian):
     
     def init_fiducial_reference_ps(self):
-        self.p_alpha_list = []
-        for i in range(self.alpha_dim): 
-            p_alpha = self.make_Response_matrix(i)
-            self.p_alpha_list.append(p_alpha)
-    
-        self.alpha_vec = self.make_binning_power()
         npol = self.telescope.num_pol_sky
         ldim = self.telescope.lmax + 1
         nfreq = self.telescope.nfreq
+        self.p_alpha_list = []
+        self.alpha_vec = self.make_binning_power()
         
+        if self.svd_cut:
+            self.p_0 = N.zeros((npol,npol,ldim,nfreq,nfreq)) # reference power spectrum
+            for i in range(self.alpha_dim): 
+                p_alpha = N.zeros((npol,npol,ldim,nfreq,nfreq))
+                p_alpha[0,0,:,:,:] = self.make_Response_matrix(i)
+                self.p_alpha_list.append(p_alpha)
+                self.p_0 += self.alpha_vec[i] * p_alpha
+            
+        else:
+            self.p_0 = N.zeros((npol,npol,ldim,ldim,nfreq,nfreq))
+            for i in range(self.alpha_dim): 
+                p_alpha = N.zeros((npol,npol,ldim,ldim,nfreq,nfreq))
+                for j in N.arange(lside):
+                    p_alpha[0,0,j,j,:,:] = self.make_Response_matrix(i)[j,:,:]
+                self.p_alpha_list.append(p_alpha)
+                self.p_0 += self.alpha_vec[i] * p_alpha
+    
+        """
         if self.svd_cut:
             self.p_0 = N.zeros((npol,npol,ldim,ldim,nfreq,nfreq))  # reference power spectrum
             for i in range(self.alpha_dim): 
@@ -95,7 +109,7 @@ class Fisher_analysis(kspace_cartesian):
             self.p_0 = N.zeros((npol,npol,ldim,nfreq,nfreq))  # reference power spectrum
             for i in range(self.alpha_dim):
                 self.p_0[0,0,:,:,:] += self.alpha_vec[i] * self.p_alpha_list[i]
-            
+        """    
         return
             
     def make_fisher(self, svd_cut="False"):
@@ -128,24 +142,8 @@ class Fisher_analysis(kspace_cartesian):
         lside = self.telescope.lmax+1
         npol = self.telescope.num_pol_sky
         
-        if self.svd_cut:
-            pa = N.zeros((npol,npol,lside,nfreq,nfreq))
-            pa[0,0,:,:,:] = self.p_alpha_list[a]
-            pa = self.project_covariance_sky_to_kl_m(m, pa).reshape(shape)
-            
-            pb = N.zeros((npol,npol,lside,nfreq,nfreq))
-            pb[0,0,:,:,:] = self.p_alpha_list[b]
-            pb = self.project_covariance_sky_to_kl_m(m, pb).reshape(shape)
-        else:
-            pa = N.zeros((npol,npol,lside,lside,nfreq,nfreq))
-            for i in N.arange(lside):
-                pa[0,0,i,i,:,:] = self.p_alpha_list[a][i,:,:]
-            pa = self.project_covariance_sky_to_kl_m(m, pa).reshape(shape)
-
-            pb = N.zeros((npol,npol,lside,lside,nfreq,nfreq))
-            for i in N.arange(lside):
-                pb[0,0,i,i,:,:] = self.p_alpha_list[b][i,:,:]
-            pb = self.project_covariance_sky_to_kl_m(m, pb).reshape(shape)
+        pa = self.project_covariance_sky_to_kl_m(m, self.p_alpha_list[a]).reshape(shape)
+        pb = self.project_covariance_sky_to_kl_m(m, self.p_alpha_list[b]).reshape(shape)
             
         result = N.trace( c_plus_n_inverse @ pa @ c_plus_n_inverse @ pb )
         return result
