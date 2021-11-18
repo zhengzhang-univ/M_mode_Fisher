@@ -7,4 +7,4 @@ pipeline_info = Parameters_collection.from_config(configfile) # Fetch info about
 
 testclass = Fisher_analysis(0,0.3,2,0,0.15,2,pipeline_info)
 
-Fisher = testclass.make_fisher(self, svd_cut="True")
+Fisher = testclass.make_fisher(svd_cut="True")
