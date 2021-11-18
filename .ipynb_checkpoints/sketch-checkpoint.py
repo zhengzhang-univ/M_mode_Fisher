@@ -127,16 +127,26 @@ class Fisher_analysis(kspace_cartesian):
         
         lside = self.telescope.lmax+1
         npol = self.telescope.num_pol_sky
-
-        pa = N.zeros((npol,npol,lside,lside,nfreq,nfreq))
-        for i in N.arange(lside):
-            pa[0,0,i,i,:,:] = self.p_alpha_list[a][i,:,:]
-        pa = self.project_covariance_sky_to_kl_m(m, pa).reshape(shape)
         
-        pb = N.zeros((npol,npol,lside,lside,nfreq,nfreq))
-        for i in N.arange(lside):
-            pb[0,0,i,i,:,:] = self.p_alpha_list[b][i,:,:]
-        pb = self.project_covariance_sky_to_kl_m(m, pb).reshape(shape)
+        if self.svd_cut:
+            pa = N.zeros((npol,npol,lside,nfreq,nfreq))
+            pa[0,0,:,:,:] = self.p_alpha_list[a]
+            pa = self.project_covariance_sky_to_kl_m(m, pa).reshape(shape)
+            
+            pb = N.zeros((npol,npol,lside,nfreq,nfreq))
+            pb[0,0,:,:,:] = self.p_alpha_list[b]
+            pb = self.project_covariance_sky_to_kl_m(m, pb).reshape(shape)
+        else:
+            pa = N.zeros((npol,npol,lside,lside,nfreq,nfreq))
+            for i in N.arange(lside):
+                pa[0,0,i,i,:,:] = self.p_alpha_list[a][i,:,:]
+            pa = self.project_covariance_sky_to_kl_m(m, pa).reshape(shape)
+
+            pb = N.zeros((npol,npol,lside,lside,nfreq,nfreq))
+            for i in N.arange(lside):
+                pb[0,0,i,i,:,:] = self.p_alpha_list[b][i,:,:]
+            pb = self.project_covariance_sky_to_kl_m(m, pb).reshape(shape)
+            
         result = N.trace( c_plus_n_inverse @ pa @ c_plus_n_inverse @ pb )
         return result
     
