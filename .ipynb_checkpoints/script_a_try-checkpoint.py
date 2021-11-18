@@ -1,7 +1,7 @@
 from Fetch_info import Parameters_collection
 from sketch import Fisher_analysis
 
-configfile = "/path/to/the/config.yaml"
+configfile = "/data/zzhang/mpi_test/config.yaml"
 
 pipeline_info = Parameters_collection.from_config(configfile) # Fetch info about the telescope and former steps
 
