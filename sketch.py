@@ -20,8 +20,8 @@ class kspace_cartesian():
         self.k_perp_centers = 0.5 * (self.k_perp_boundaries[:-1] + self.k_perp_boundaries[1:])
         
         Aux1, Aux2 = N.broadcast_arrays(self.k_par_centers[:, N.newaxis], self.k_perp_centers)
-        
-        self.k_centers = (Aux1 ** 2 + Aux2 ** 2) ** 0.5 
+        Aux = (Aux1 ** 2 + Aux2 ** 2) ** 0.5 
+        self.k_centers = Aux.flatten()
 
     def make_Response_matrix(self, ind): # t
         pk_ind = self.make_binning_function(ind)
